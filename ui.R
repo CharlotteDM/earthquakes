@@ -41,6 +41,7 @@ my_ui_earthquake <- fluidPage(
       
       mainPanel(
       textOutput("tabs_title"),
+      strong("For more information go to the section:"),
       tabsetPanel(
                   tabPanel("Map", leafletOutput("ertqk_map")), 
                   tabPanel("Table", tableOutput("ertqk_table")),
@@ -100,7 +101,7 @@ my_server <- function(input, output) {
       geom_jitter(width=0.15, alpha=0.3) +
       labs(
         title = "Earthquakes 18.04.2022-18.05.2022",
-        caption = "(based on data from: https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php#data",
+        caption = "(based on data from: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.csv",
         x = "Magnitude",
         y = "Magnitude type") +
       theme(
@@ -112,7 +113,7 @@ my_server <- function(input, output) {
     
   })
   output$tabs_title <- renderText({ 
-    "Switch tabs for more information."
+    "data source: https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php#data"
   })
   }
 
