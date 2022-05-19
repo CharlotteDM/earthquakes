@@ -5,6 +5,7 @@ library("RColorBrewer")
 library("rstudioapi")
 library("leaflet")
 library("htmlwidgets")
+library("ggplot2")
 
 install.packages("rsconnect")
 library("rsconnect")
@@ -18,42 +19,42 @@ setwd(path)
 ertqk <- read.csv("data/earthquakes.csv", stringsAsFactors = F)
 #data source: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.csv
 
+#renames columns
+ertqk <- ertqk %>% rename(magnitude = mag)
+ertqk <- ertqk %>% rename(type_of_magnitude = magType)
 
 #application interface
 my_ui_earthquake <- fluidPage(
-  titlePanel("M4.5+ Earthquakes in the world (18.04.2022 - 18.05.2022)"),
+  titlePanel("Magn 4.5+ Earthquakes in the world (18.04.2022 - 18.05.2022)"),
   sidebarLayout(
     sidebarPanel(
       selectInput(
         inputId = "analysis_var",
         label = "Analysis level",
-        choices = c("mag", "magType")
+        choices = c("magnitude", "type_of_magnitude")
         )
       ),
     mainPanel(
-      leafletOutput("ertqk_map"),
-      tableOutput("ertqk_table")
+      textOutput("tabs_title"),
+      tabsetPanel(
+                  tabPanel("Map", leafletOutput("ertqk_map")), 
+                  tabPanel("Table", tableOutput("ertqk_table")),
+                  tabPanel("Plot", plotOutput("my_plot"))
+                  )
       )
     )
   )
 
-
-
 #number of earhqk
 
-#ertqk_table <- ertqk %>%
-#  group_by(magType) %>%
-#  arrange(-mag) %>%
-#  select(time, depth, mag, magType, gap, dmin, rms)
-
-
-
+ertqk_table <- ertqk %>%
+group_by(type_of_magnitude) %>%
+arrange(-magnitude) %>%
+select(time, depth, magnitude, type_of_magnitude, gap, dmin, rms)
 
 #run app
 #server <- function(input, output, sessions) {}
 #shinyApp(ui = my_ui_earthquake, server = server)  
-
-
 
 #refine code
 my_server <- function(input, output) {
@@ -69,26 +70,48 @@ my_server <- function(input, output) {
         lat = ~latitude,
         lng = ~longitude,
         label = ~paste("Depth of the event in kilometers: ", depth,
-                        "Magnitude: ", mag),
+                        "Magnitude: ", magnitude,
+                        "Date: ", time),
         color = ~pal_ertqk(ertqk[[input$analysis_var]]),
         fillOpacity = .7,
         radius = 4,
         stroke = F) %>%
       addLegend(
         position = "bottomright",
-        title = "Magnitude Type",
+        title = input$analysis_var,
         pal = pal_ertqk,
         values = ~ertqk[[input$analysis_var]],
         opacity = .5)
  })
-  output$grouped_table <- renderTable({
-    ertqk_table <- ertqk %>%
-      group_by(ertqk[[input$analysis_var]]) %>%
-      arrange(-input$analysis_var) 
-      colnames(ertqk_table) <- c(input$analysis_var, "Magnitude")
-      
+  output$ertqk_table <- renderTable({
+    table <- ertqk_table %>%
+      group_by(ertqk_table[[input$analysis_var]]) %>% 
+      count %>%
+      arrange(-n) 
+    colnames(table) <- c(input$analysis_var, "Number of cases")
+    table
   })
-}
+  output$my_plot <- renderPlot({
+    ggplot (data = ertqk, (aes(magnitude,type_of_magnitude, color=type_of_magnitude))) +
+      geom_boxplot() +
+      geom_jitter(width=0.15, alpha=0.3) +
+      labs(
+        title = "Earthquakes 18.04.2022-18.05.2022",
+        caption = "(based on data from: https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php#data",
+        x = "Magnitude",
+        y = "Magnitude type") +
+      theme(
+        plot.title = element_text(color="royalblue4", size=14, face="bold", hjust = 0.5),
+        axis.title.x = element_text(color="steelblue2", size=14, face="bold"),
+        axis.title.y = element_text(color="steelblue2", size=14, face="bold"),
+        plot.caption.position = "plot",
+        legend.position = "none")
+    
+  })
+  output$tabs_title <- renderText({ 
+    "Switch tabs for more information."
+  })
+  }
 
 
 shinyApp(ui = my_ui_earthquake, server = my_server) 
