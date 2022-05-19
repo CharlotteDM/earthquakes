@@ -7,13 +7,17 @@ library("leaflet")
 library("htmlwidgets")
 library("ggplot2")
 
-install.packages("rsconnect")
-library("rsconnect")
-install.packages("shinyWidgets")
-library("shinyWidgets")
+#install.packages("rsconnect")
+#install.packages("shinyWidgets")
+#install.packages("shinythemes")
 
-path <- dirname(rstudioapi::getActiveDocumentContext()$path)
-setwd(path)
+library("rsconnect")
+library("shinyWidgets")
+library("shinythemes")
+
+#uncomment to set working directory of RStudio - only for local
+#path <- dirname(rstudioapi::getActiveDocumentContext()$path)
+#setwd(path)
 
 
 ertqk <- read.csv("data/earthquakes.csv", stringsAsFactors = F)
@@ -25,6 +29,7 @@ ertqk <- ertqk %>% rename(type_of_magnitude = magType)
 
 #application interface
 my_ui_earthquake <- fluidPage(
+  theme = shinytheme("united"),
   titlePanel("Magn 4.5+ Earthquakes in the world (18.04.2022 - 18.05.2022)"),
   sidebarLayout(
     sidebarPanel(
@@ -32,29 +37,27 @@ my_ui_earthquake <- fluidPage(
         inputId = "analysis_var",
         label = "Analysis level",
         choices = c("magnitude", "type_of_magnitude")
-        )
-      ),
-    mainPanel(
+        )),
+      
+      mainPanel(
       textOutput("tabs_title"),
       tabsetPanel(
                   tabPanel("Map", leafletOutput("ertqk_map")), 
                   tabPanel("Table", tableOutput("ertqk_table")),
                   tabPanel("Plot", plotOutput("my_plot"))
                   )
-      )
     )
   )
+)
 
-#number of earhqk
+
+#table of earhqk
 
 ertqk_table <- ertqk %>%
 group_by(type_of_magnitude) %>%
 arrange(-magnitude) %>%
 select(time, depth, magnitude, type_of_magnitude, gap, dmin, rms)
 
-#run app
-#server <- function(input, output, sessions) {}
-#shinyApp(ui = my_ui_earthquake, server = server)  
 
 #refine code
 my_server <- function(input, output) {
@@ -114,4 +117,4 @@ my_server <- function(input, output) {
   }
 
 
-shinyApp(ui = my_ui_earthquake, server = my_server) 
+shinyApp(ui = my_ui_earthquake, server = my_server, options = list(height = 800)) 
