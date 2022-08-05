@@ -16,8 +16,8 @@ library("shinyWidgets")
 library("shinythemes")
 
 #uncomment to set working directory of RStudio - only for local
-#path <- dirname(rstudioapi::getActiveDocumentContext()$path)
-#setwd(path)
+path <- dirname(rstudioapi::getActiveDocumentContext()$path)
+setwd(path)
 
 
 ertqk <- read.csv("data/earthquakes.csv", stringsAsFactors = F)
