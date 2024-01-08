@@ -4,24 +4,21 @@ library(shiny)
 library(RColorBrewer)
 library(rstudioapi)
 library(leaflet)
-library(htmlwidgets)
+#library(htmlwidgets)
 library(ggplot2)
-library(jsonlite)
+
 
 #install.packages("rsconnect")
 #install.packages("shinyWidgets")
 #install.packages("shinythemes")
 
 library(rsconnect)
-library(shinyWidgets)
+#library(shinyWidgets)
 library(shinythemes)
 
 #uncomment to set working directory of RStudio - only for local
-path <- dirname(rstudioapi::getActiveDocumentContext()$path)
-setwd(path)
-
-erthqs <- fromJSON("https://earthquake.usgs.gov/fdsnws/event/1/application.json")
-
+#path <- dirname(rstudioapi::getActiveDocumentContext()$path)
+#setwd(path)
 
 
 ertqk <- read.csv("data/earthquakes.csv", stringsAsFactors = F)
