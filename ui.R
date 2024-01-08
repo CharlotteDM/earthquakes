@@ -73,7 +73,8 @@ my_server <- function(input, output) {
       domain = ertqk[[input$analysis_var]]
     )
     leaflet(data = ertqk) %>%
-      addProviderTiles("Stamen.TonerLite") %>%
+      addTiles() %>%
+      #addProviderTiles("Stamen.TonerLite") %>%
       addCircleMarkers(
         lat = ~latitude,
         lng = ~longitude,
