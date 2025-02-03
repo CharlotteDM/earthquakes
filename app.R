@@ -27,8 +27,8 @@ erthqs_df <- erthqs$features %>%
     time = as.POSIXct(properties$time / 1000, origin = "1970-01-01", tz = "UTC"),
     long = sapply(geometry$coordinates, function(x) x[1]),  
     lat = sapply(geometry$coordinates, function(x) x[2]),   
-    depth = sapply(geometry$coordinates, function(x) x[3]), 
-    magnitude = properties$mag,  
+    depth = sapply(geometry$coordinates, function(x) x[3]),
+    magnitude = properties$mag,
     magType = factor(properties$magType)) %>%
   select(long, lat, depth, magnitude, magType, time)  # Select relevant columns
 
@@ -198,6 +198,7 @@ server <- function(input, output) {
     table
   })
   
+
   # Plot rendering
   output$my_plot <- renderPlot({
     ggplot(data = filtered_data(), aes(x = magnitude, y = magType, color = magType)) +
@@ -227,10 +228,8 @@ server <- function(input, output) {
         y = "Number of Earthquakes"
       ) +
       theme_minimal()
-  })
-  
-  
-  
+  })      
 }
 
 shinyApp(ui = ui, server = server)
+
