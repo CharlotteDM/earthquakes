@@ -144,13 +144,26 @@ server <- function(input, output) {
     paste("Data from: ", earliest_earthquake, " to: ", latest_earthquake)
   })
   
+
   # Map rendering
   output$ertqk_map <- renderLeaflet({
+ 
     legend_title <- ifelse(input$analysis_var == "magnitude", "Earthquake Size (Magnitude)", "Magnitude Type")
-    pal_ertqk <- colorFactor(
-      palette = "Dark2",
-      domain = filtered_data()[[input$analysis_var]]
-    )
+    
+
+    if (input$analysis_var == "magnitude") {
+      pal_ertqk <- colorNumeric(
+        palette = "YlOrRd", 
+        domain = filtered_data()$magnitude  
+      )
+    } else {
+      pal_ertqk <- colorFactor(
+        palette = "Set1",  
+        domain = filtered_data()$magType  
+      )
+    }
+    
+    # map
     leaflet(data = filtered_data()) %>%
       addTiles() %>%
       addCircleMarkers(
@@ -161,17 +174,19 @@ server <- function(input, output) {
           "Magnitude: ", magnitude, "\n",
           "Date: ", format(time, "%Y-%m-%d %H:%M:%S")
         ),
-        color = ~pal_ertqk(filtered_data()[[input$analysis_var]]),
+        color = ~pal_ertqk(filtered_data()[[input$analysis_var]]),  
         fillOpacity = .7,
         radius = 4,
         stroke = FALSE) %>%
       addLegend(
         position = "bottomright",
-        title = legend_title,
+        title = legend_title,  
         pal = pal_ertqk,
-        values = ~filtered_data()[[input$analysis_var]],
-        opacity = .7)
+        values = ~filtered_data()[[input$analysis_var]],  
+        opacity = .7
+      )
   })
+  
   
   # Table rendering
   output$ertqk_table <- renderTable({
@@ -213,6 +228,8 @@ server <- function(input, output) {
       ) +
       theme_minimal()
   })
+  
+  
   
 }
 
